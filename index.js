@@ -33,13 +33,19 @@ const client = new MongoClient(uri, {
 const DBName = client.db("TorletDatabase");
 const ProductCollection = DBName.collection("ProductsCollection")
 
-
+// Get Product Data
+app.get('/api/product', async (req, res) => {
+    const cursor = ProductCollection.find();
+    const result = await cursor.toArray()
+    res.send(result)
+})
 
 
 // Product Post Api 
 app.post('/api/Products', async (req, res) => {
     const Data = req.body
-    const result = await ProductCollection.insertOne(Data)
+    const NewData = { ...Data, createdAt: new Date() }
+    const result = await ProductCollection.insertOne(NewData)
 
     res.send(result)
 })
