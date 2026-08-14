@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 const app = express();
 
@@ -35,8 +35,13 @@ const ProductCollection = DBName.collection("ProductsCollection");
 
 // Get Product Data
 app.get("/api/product", async (req, res) => {
+    const { id } = req.query;
+    let query = {}
+    if (id) {
+        query = { _id: new ObjectId(id) }
+    }
     try {
-        const result = await ProductCollection.find().toArray();
+        const result = await ProductCollection.find(query).toArray();
         res.status(200).send(result);
     } catch (error) {
         console.error("GET PRODUCT ERROR:", error);
