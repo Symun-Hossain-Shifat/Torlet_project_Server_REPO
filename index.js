@@ -32,9 +32,10 @@ const client = new MongoClient(uri, {
 
 const DBName = client.db("TorletDatabase");
 const ProductCollection = DBName.collection("ProductsCollection");
+const CartCollection = DBName.collection("CartCollection");
 
 // Get Product Data
-app.get("/api/product", async (req, res) => {
+app.get("/api/Product", async (req, res) => {
     const { id } = req.query;
     let query = {}
     if (id) {
@@ -70,6 +71,29 @@ app.post("/api/Product", async (req, res) => {
 
         res.status(500).send({
             message: "Failed to add product",
+            error: error.message,
+        });
+    }
+});
+
+// Cart Post API
+app.post("/api/Cart", async (req, res) => {
+    try {
+        const Data = req.body;
+
+        const NewData = {
+            ...Data,
+            createdAt: new Date(),
+        };
+
+        const result = await CartCollection.insertOne(NewData);
+
+        res.status(201).send(result);
+    } catch (error) {
+        console.error("POST CART ERROR:", error);
+
+        res.status(500).send({
+            message: "Failed to add cart",
             error: error.message,
         });
     }
