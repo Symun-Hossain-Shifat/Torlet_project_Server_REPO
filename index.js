@@ -53,6 +53,54 @@ app.get("/api/Product", async (req, res) => {
     }
 });
 
+app.get('/api/Cart', async (req, res) => {
+    const { email } = req.query;
+    let query = {
+        email: email
+    }
+    try {
+        const result = await CartCollection.find(query).toArray();
+        res.status(200).send(result);
+    } catch (error) {
+        console.error("GET CART ERROR:", error);
+        res.status(500).send({
+            message: "Failed to get carts",
+            error: error.message,
+        });
+
+    }
+})
+
+
+// Dlete Data Api 
+app.delete('/api/Cart/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const query = { _id: id }
+        const result = await CartCollection.deleteOne(query);
+        if (result.deletedCount === 0) {
+            return res.status(404).send({
+                message: "Cart not found",
+            });
+        }
+        res.status(200).send(result);
+    } catch (error) {
+        console.error("DELETE CART ERROR:", error);
+        res.status(500).send({
+            message: "Failed to delete cart",
+            error: error.message,
+        });
+    }
+})
+
+
+
+
+
+
+
+
+
 // Product Post API
 app.post("/api/Product", async (req, res) => {
     try {
@@ -81,18 +129,28 @@ app.post("/api/Cart", async (req, res) => {
     try {
         const Data = req.body;
 
+        // Remove product's _id
+        const { _id, ...cartData } = Data;
+
         const NewData = {
-            ...Data,
+            ...cartData,
+            productId: _id,
             createdAt: new Date(),
         };
 
         const result = await CartCollection.insertOne(NewData);
 
-        res.status(201).send(result);
+        res.status(201).send({
+            success: true,
+            message: "Product added to cart successfully",
+            result,
+        });
+
     } catch (error) {
         console.error("POST CART ERROR:", error);
 
         res.status(500).send({
+            success: false,
             message: "Failed to add cart",
             error: error.message,
         });
