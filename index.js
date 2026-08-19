@@ -33,6 +33,7 @@ const client = new MongoClient(uri, {
 const DBName = client.db("TorletDatabase");
 const ProductCollection = DBName.collection("ProductsCollection");
 const CartCollection = DBName.collection("CartCollection");
+const UsersCollection = DBName.collection("user");
 
 // Get Product Data
 app.get("/api/Product", async (req, res) => {
@@ -71,12 +72,25 @@ app.get('/api/Cart', async (req, res) => {
     }
 })
 
+app.get('/api/user', async (req, res) => {
+    try {
+        const result = await UsersCollection.find().toArray();
+        res.status(200).send(result);
+    } catch (error) {
+        console.error("GET USER ERROR:", error);
+        res.status(500).send({
+            message: "Failed to get users",
+            error: error.message,
+        });
+    }
+})
+
 
 // Dlete Data Api 
 app.delete('/api/Cart/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        const query = { _id: id }
+        const query = { _id: new ObjectId(id) }
         const result = await CartCollection.deleteOne(query);
         if (result.deletedCount === 0) {
             return res.status(404).send({
