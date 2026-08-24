@@ -107,7 +107,19 @@ app.delete('/api/Cart/:id', async (req, res) => {
     }
 })
 
+// Update APi  
+app.patch('/api/user/:email', async (req, res) => {
+    const { email } = req.params;
+    const { isBlocked } = req.body
 
+    const result = await UsersCollection.updateOne({ email: email }, { $set: { isBlocked: isBlocked } });
+    if (result.modifiedCount === 0) {
+        return res.status(404).send({
+            message: "User not found",
+        });
+    }
+    res.status(200).send(result);
+})
 
 
 
