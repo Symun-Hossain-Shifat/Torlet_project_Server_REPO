@@ -34,6 +34,7 @@ const DBName = client.db("TorletDatabase");
 const ProductCollection = DBName.collection("ProductsCollection");
 const CartCollection = DBName.collection("CartCollection");
 const UsersCollection = DBName.collection("user");
+const WishListCollection = DBName.collection('WishListCollection')
 
 // Get Product Data
 app.get("/api/Product", async (req, res) => {
@@ -182,6 +183,34 @@ app.post("/api/Cart", async (req, res) => {
         });
     }
 });
+
+
+// WishList Post API 
+app.post('/api/wishlist', async (req, res) => {
+    const data = req.body
+    const { _id, ...cartData } = data;
+
+    const NewData = {
+        ...cartData,
+        productId: _id,
+        createdAt: new Date(),
+    };
+    const result = await WishListCollection.insertOne(NewData)
+    if (result.insertedCount > 0) {
+        res.status(201).send({
+            success: true,
+            message: "Product added to wishlist successfully",
+            result,
+        });
+    }
+    else {
+        res.status(500).send({
+            success: false,
+            message: "Failed to add product to wishlist",
+            error: "Internal Server Error",
+        });
+    }
+})
 
 async function run() {
     try {
