@@ -86,6 +86,25 @@ app.get('/api/user', async (req, res) => {
     }
 })
 
+app.get('/api/wishlist', async (req, res) => {
+    const { email } = req.query;
+    let query = {
+        email: email
+    }
+    try {
+        const result = await WishListCollection.find(query).toArray();
+        res.status(200).send(result)
+    } catch (error) {
+        console.error("GET WISHLIST ERROR:", error);
+        res.status(500).send({
+            message: "Failed to get wishlist",
+            error: error.message,
+        });
+    }
+})
+
+
+
 
 // Dlete Data Api 
 app.delete('/api/Cart/:id', async (req, res) => {
@@ -107,6 +126,11 @@ app.delete('/api/Cart/:id', async (req, res) => {
         });
     }
 })
+
+
+
+
+
 
 // Update APi  
 app.patch('/api/user/:email', async (req, res) => {
