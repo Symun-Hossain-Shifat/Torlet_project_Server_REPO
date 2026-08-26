@@ -35,6 +35,10 @@ const ProductCollection = DBName.collection("ProductsCollection");
 const CartCollection = DBName.collection("CartCollection");
 const UsersCollection = DBName.collection("user");
 const WishListCollection = DBName.collection('WishListCollection')
+const ContactCollection = DBName.collection('ContactCollection')
+
+
+
 
 // Get Product Data
 app.get("/api/Product", async (req, res) => {
@@ -207,6 +211,26 @@ app.post("/api/Cart", async (req, res) => {
         });
     }
 });
+
+// Contact api 
+app.post('/api/contactinfo', async (req, res) => {
+    const data = req.body
+    const NewData = {
+        ...data, CreatedAt: new Date()
+    }
+    try {
+        const result = await ContactCollection.insertOne(NewData)
+        res.status(201).send(result)
+    } catch (error) {
+        console.error("POST CONTACT ERROR:", error);
+
+        res.status(500).send({
+            success: false,
+            message: "Failed to add contact",
+            error: error.message,
+        });
+    }
+})
 
 
 // WishList Post API 
