@@ -108,6 +108,20 @@ app.get('/api/wishlist', async (req, res) => {
 })
 
 
+app.get('/api/contactinfo', async (req, res) => {
+
+    try {
+        const result = await ContactCollection.find().toArray();
+        res.status(200).send(result)
+    } catch (error) {
+        console.error("GET CONTACT ERROR:", error);
+        res.status(500).send({
+            message: "Failed to get contacts",
+            error: error.message,
+        });
+    }
+})
+
 
 
 // Dlete Data Api 
