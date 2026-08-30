@@ -146,6 +146,26 @@ app.delete('/api/Cart/:id', async (req, res) => {
 })
 
 
+app.delete('/api/wishlist/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const query = { _id: new ObjectId(id) }
+        const result = await WishListCollection.deleteOne(query);
+        if (result.deletedCount === 0) {
+            return res.status(404).send({
+                message: "Wishlist not found",
+            });
+        }
+        res.status(200).send(result);
+    } catch (error) {
+        console.error("DELETE WISHLIST ERROR:", error);
+        res.status(500).send({
+            message: "Failed to delete wishlist",
+            error: error.message,
+        });
+    }
+})
+
 
 
 
