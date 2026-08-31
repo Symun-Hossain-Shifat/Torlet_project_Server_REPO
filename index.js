@@ -167,6 +167,26 @@ app.delete('/api/wishlist/:id', async (req, res) => {
 })
 
 
+app.delete('/api/contactinfo/:id', async (req, res) => {
+    const { id } = req.params;
+    const query = { _id: new ObjectId(id) }
+    try {
+        const result = await ContactCollection.deleteOne(query);
+        if (result.deletedCount === 0) {
+            return res.status(404).send({
+                message: "Contact not found",
+            });
+        }
+        res.status(200).send(result);
+    } catch (error) {
+        console.error("DELETE CONTACT ERROR:", error);
+        res.status(500).send({
+            message: "Failed to delete contact",
+            error: error.message,
+        });
+    }
+})
+
 
 
 
