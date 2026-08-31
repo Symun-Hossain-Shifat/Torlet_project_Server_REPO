@@ -187,7 +187,25 @@ app.delete('/api/contactinfo/:id', async (req, res) => {
     }
 })
 
-
+app.delete('/api/Product/:id', async (req, res) => {
+    const { id } = req.params;
+    const query = { _id: new ObjectId(id) }
+    try {
+        const result = await ProductCollection.deleteOne(query);
+        if (result.deletedCount === 0) {
+            return res.status(404).send({
+                message: "Product not found",
+            });
+        }
+        res.status(200).send(result);
+    } catch (error) {
+        console.error("DELETE PRODUCT ERROR:", error);
+        res.status(500).send({
+            message: "Failed to delete product",
+            error: error.message,
+        });
+    }
+})
 
 
 // Update APi  
