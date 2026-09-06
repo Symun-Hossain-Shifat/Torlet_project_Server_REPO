@@ -36,6 +36,7 @@ const CartCollection = DBName.collection("CartCollection");
 const UsersCollection = DBName.collection("user");
 const WishListCollection = DBName.collection('WishListCollection')
 const ContactCollection = DBName.collection('ContactCollection')
+const OrderCollection = DBName.collection('OrderCollection')
 
 
 
@@ -330,6 +331,26 @@ app.post('/api/wishlist', async (req, res) => {
             error: "Internal Server Error",
         });
     }
+})
+
+
+app.post('/api/Order', async (req, res) => {
+    const data = req.body;
+    const newData = { ...data, CreatedAt: new Date() }
+
+    try {
+        const result = await OrderCollection.insertOne(newData)
+        res.status(201).send(result)
+    } catch (error) {
+
+
+        res.status(500).send({
+            success: false,
+            message: "Failed to add order",
+            error: error.message,
+        });
+    }
+
 })
 
 async function run() {
