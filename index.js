@@ -124,6 +124,29 @@ app.get('/api/contactinfo', async (req, res) => {
 })
 
 
+app.get('/api/Order', async (req, res) => {
+    const { email } = req.query;
+
+    let query = {};
+
+    // email থাকলে শুধু ওই email-এর order
+    if (email) {
+        query = { email };
+    }
+
+    try {
+        const result = await OrderCollection.find(query).toArray();
+
+        res.status(200).send(result);
+    } catch (error) {
+        console.error("GET ORDERS ERROR:", error);
+
+        res.status(500).send({
+            message: "Failed to get orders",
+            error: error.message,
+        });
+    }
+});
 
 // Dlete Data Api 
 app.delete('/api/Cart/:id', async (req, res) => {
