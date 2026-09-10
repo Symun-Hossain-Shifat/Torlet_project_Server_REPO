@@ -169,6 +169,26 @@ app.delete('/api/Cart/:id', async (req, res) => {
     }
 })
 
+app.delete('/api/Order/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const query = { _id: new ObjectId(id) }
+        const result = await OrderCollection.deleteOne(query);
+        if (result.deletedCount === 0) {
+            return res.status(404).send({
+                message: "Order not found",
+            });
+        }
+        res.status(200).send(result);
+    } catch (error) {
+        console.error("DELETE ORDER ERROR:", error);
+        res.status(500).send({
+            message: "Failed to delete order",
+            error: error.message,
+        });
+    }
+})
+
 
 app.delete('/api/wishlist/:id', async (req, res) => {
     const { id } = req.params;
