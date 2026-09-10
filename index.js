@@ -148,6 +148,19 @@ app.get('/api/Order', async (req, res) => {
     }
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Dlete Data Api 
 app.delete('/api/Cart/:id', async (req, res) => {
     const { id } = req.params;
@@ -252,6 +265,9 @@ app.delete('/api/Product/:id', async (req, res) => {
 })
 
 
+
+
+
 // Update APi  
 app.patch('/api/user/:email', async (req, res) => {
     const { email } = req.params;
@@ -266,8 +282,18 @@ app.patch('/api/user/:email', async (req, res) => {
     res.status(200).send(result);
 })
 
+app.patch('/api/Order/:id', async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body
 
-
+    const result = await OrderCollection.updateOne({ _id: new ObjectId(id) }, { $set: { status: status } });
+    if (result.modifiedCount === 0) {
+        return res.status(404).send({
+            message: "Order not found",
+        });
+    }
+    res.status(200).send(result);
+})
 
 
 
