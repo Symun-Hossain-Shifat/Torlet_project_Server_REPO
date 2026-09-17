@@ -3,6 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const { createRemoteJWKSet, jwtVerify } = require("jose-cjs");
 
 const app = express();
 
@@ -38,6 +39,43 @@ const WishListCollection = DBName.collection('WishListCollection')
 const ContactCollection = DBName.collection('ContactCollection')
 const OrderCollection = DBName.collection('OrderCollection')
 
+// Verify Token 
+const JWKS = createRemoteJWKSet(
+    new URL(`${process.env.CLIENT_URL}/api/auth/jwks`)
+)
+
+// Verify Authentication of Login TOken 
+const VerifyToken = async (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    const id = req.headers.user
+
+    if (!authHeader) {
+        return res.status(401).send({
+            message: "Unauthorized access",
+        });
+    }
+    const Token = authHeader.split(' ')[1];
+    if (!Token) {
+        return res.status(401).send({
+            message: "Unauthorized access",
+        });
+    }
+    try {
+        const { payload } = await jwtVerify(Token, JWKS)
+        console.log(payload)
+
+    } catch (error) {
+        return res.status(403).send({ message: 'Forbidden' })
+    }
+
+
+    const UserId = new ObjectId(id)
+    const user = await UsersCollection.findOne({ _id: UserId })
+    // console.log(user)
+    req.user = user
+
+    next();
+};
 
 
 
@@ -60,7 +98,7 @@ app.get("/api/Product", async (req, res) => {
     }
 });
 
-app.get('/api/Cart', async (req, res) => {
+app.get('/api/Cart', VerifyToken, async (req, res) => {
     const { email } = req.query;
     let query = {
         email: email
@@ -78,7 +116,7 @@ app.get('/api/Cart', async (req, res) => {
     }
 })
 
-app.get('/api/user', async (req, res) => {
+app.get('/api/user', VerifyToken, async (req, res) => {
     try {
         const result = await UsersCollection.find().toArray();
         res.status(200).send(result);
@@ -91,7 +129,7 @@ app.get('/api/user', async (req, res) => {
     }
 })
 
-app.get('/api/wishlist', async (req, res) => {
+app.get('/api/wishlist', VerifyToken, async (req, res) => {
     const { email } = req.query;
     let query = {
         email: email
@@ -109,7 +147,7 @@ app.get('/api/wishlist', async (req, res) => {
 })
 
 
-app.get('/api/contactinfo', async (req, res) => {
+app.get('/api/contactinfo', VerifyToken, async (req, res) => {
 
     try {
         const result = await ContactCollection.find().toArray();
@@ -124,7 +162,7 @@ app.get('/api/contactinfo', async (req, res) => {
 })
 
 
-app.get('/api/Order', async (req, res) => {
+app.get('/api/Order', VerifyToken, async (req, res) => {
     const { email } = req.query;
 
     let query = {};
