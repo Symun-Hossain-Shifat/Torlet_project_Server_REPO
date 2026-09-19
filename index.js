@@ -78,6 +78,29 @@ const VerifyToken = async (req, res, next) => {
 };
 
 
+// must call after VerifyToken function 
+
+const VerifyAdmin = async (req, res, next) => {
+    const user = req.user
+    if (user?.role !== 'Admin') {
+        return res.status(403).send({ message: 'forbidden access' })
+    }
+    // console.log(user) 
+    next()
+}
+
+// must call after VerifyToken function 
+
+const Verifyuser = async (req, res, next) => {
+    const user = req.user
+    if (user?.role !== 'User') {
+        return res.status(403).send({ message: 'forbidden access' })
+    }
+    // console.log(user) 
+    next()
+}
+
+
 
 // Get Product Data
 app.get("/api/Product", async (req, res) => {
@@ -98,7 +121,7 @@ app.get("/api/Product", async (req, res) => {
     }
 });
 
-app.get('/api/Cart', VerifyToken, async (req, res) => {
+app.get('/api/Cart', VerifyToken, Verifyuser, async (req, res) => {
     const { email } = req.query;
     let query = {
         email: email
@@ -116,7 +139,7 @@ app.get('/api/Cart', VerifyToken, async (req, res) => {
     }
 })
 
-app.get('/api/user', VerifyToken, async (req, res) => {
+app.get('/api/user', VerifyToken, VerifyAdmin, async (req, res) => {
     try {
         const result = await UsersCollection.find().toArray();
         res.status(200).send(result);
@@ -129,7 +152,7 @@ app.get('/api/user', VerifyToken, async (req, res) => {
     }
 })
 
-app.get('/api/wishlist', VerifyToken, async (req, res) => {
+app.get('/api/wishlist', VerifyToken, Verifyuser, async (req, res) => {
     const { email } = req.query;
     let query = {
         email: email
@@ -147,7 +170,7 @@ app.get('/api/wishlist', VerifyToken, async (req, res) => {
 })
 
 
-app.get('/api/contactinfo', VerifyToken, async (req, res) => {
+app.get('/api/contactinfo', VerifyToken, VerifyAdmin, async (req, res) => {
 
     try {
         const result = await ContactCollection.find().toArray();
