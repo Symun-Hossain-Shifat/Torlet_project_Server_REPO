@@ -223,7 +223,7 @@ app.get('/api/Order', VerifyToken, async (req, res) => {
 
 
 // Dlete Data Api 
-app.delete('/api/Cart/:id', async (req, res) => {
+app.delete('/api/Cart/:id', VerifyToken, Verifyuser, async (req, res) => {
     const { id } = req.params;
     try {
         const query = { _id: new ObjectId(id) }
@@ -243,7 +243,7 @@ app.delete('/api/Cart/:id', async (req, res) => {
     }
 })
 
-app.delete('/api/Order/:id', async (req, res) => {
+app.delete('/api/Order/:id', VerifyToken, VerifyAdmin, async (req, res) => {
     const { id } = req.params;
     try {
         const query = { _id: new ObjectId(id) }
@@ -264,7 +264,7 @@ app.delete('/api/Order/:id', async (req, res) => {
 })
 
 
-app.delete('/api/wishlist/:id', async (req, res) => {
+app.delete('/api/wishlist/:id', VerifyToken, Verifyuser, async (req, res) => {
     const { id } = req.params;
     try {
         const query = { _id: new ObjectId(id) }
@@ -285,7 +285,7 @@ app.delete('/api/wishlist/:id', async (req, res) => {
 })
 
 
-app.delete('/api/contactinfo/:id', async (req, res) => {
+app.delete('/api/contactinfo/:id', VerifyToken, VerifyAdmin, async (req, res) => {
     const { id } = req.params;
     const query = { _id: new ObjectId(id) }
     try {
@@ -305,7 +305,7 @@ app.delete('/api/contactinfo/:id', async (req, res) => {
     }
 })
 
-app.delete('/api/Product/:id', async (req, res) => {
+app.delete('/api/Product/:id', VerifyToken, VerifyAdmin, async (req, res) => {
     const { id } = req.params;
     const query = { _id: new ObjectId(id) }
     try {
@@ -330,7 +330,7 @@ app.delete('/api/Product/:id', async (req, res) => {
 
 
 // Update APi  
-app.patch('/api/user/:email', async (req, res) => {
+app.patch('/api/user/:email', VerifyToken, VerifyAdmin, async (req, res) => {
     const { email } = req.params;
     const { isBlocked } = req.body
 
@@ -343,7 +343,7 @@ app.patch('/api/user/:email', async (req, res) => {
     res.status(200).send(result);
 })
 
-app.patch('/api/Order/:id', async (req, res) => {
+app.patch('/api/Order/:id', VerifyToken, VerifyAdmin, async (req, res) => {
     const { id } = req.params;
     const { status } = req.body
 
@@ -360,7 +360,7 @@ app.patch('/api/Order/:id', async (req, res) => {
 
 
 // Product Post API
-app.post("/api/Product", async (req, res) => {
+app.post("/api/Product", VerifyToken, VerifyAdmin, async (req, res) => {
     try {
         const Data = req.body;
 
@@ -383,7 +383,7 @@ app.post("/api/Product", async (req, res) => {
 });
 
 // Cart Post API
-app.post("/api/Cart", async (req, res) => {
+app.post("/api/Cart", VerifyToken, Verifyuser, async (req, res) => {
     try {
         const Data = req.body;
 
@@ -416,7 +416,7 @@ app.post("/api/Cart", async (req, res) => {
 });
 
 // Contact api 
-app.post('/api/contactinfo', async (req, res) => {
+app.post('/api/contactinfo', VerifyToken, Verifyuser, async (req, res) => {
     const data = req.body
     const NewData = {
         ...data, CreatedAt: new Date()
@@ -437,7 +437,7 @@ app.post('/api/contactinfo', async (req, res) => {
 
 
 // WishList Post API 
-app.post('/api/wishlist', async (req, res) => {
+app.post('/api/wishlist', VerifyToken, Verifyuser, async (req, res) => {
     const data = req.body
     const { _id, ...cartData } = data;
 
@@ -464,7 +464,7 @@ app.post('/api/wishlist', async (req, res) => {
 })
 
 
-app.post('/api/Order', async (req, res) => {
+app.post('/api/Order', VerifyToken, Verifyuser, async (req, res) => {
     const data = req.body;
     const newData = { ...data, CreatedAt: new Date() }
 
