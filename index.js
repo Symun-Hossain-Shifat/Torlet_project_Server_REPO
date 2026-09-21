@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const nodemailer = require("nodemailer");
 
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const { createRemoteJWKSet, jwtVerify } = require("jose-cjs");
@@ -22,6 +23,86 @@ app.use(express.json());
 app.get("/", (req, res) => {
     res.send("Hello User In Torlet Server!");
 });
+
+
+const transforter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_HOST,
+        pass: process.env.EMAIL_PASS
+    }
+})
+
+// Send Welcome Mail After Completing Sign In
+app.post('/api/auth/signup', async (req, res) => {
+    const { email, name } = req.query;
+
+    const mailOptions = {
+        from: `"Torlet" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: 'Welcome to Torlet 🎉',
+        text: `Welcome to Torlet, ${name}! We are happy to have you with us. Start exploring at https://torlet.com`,
+        html: `
+    <div style="background-color: #0a0a0a; padding: 40px 20px; font-family: Arial, sans-serif;">
+        <div style="max-width: 520px; margin: 0 auto; background-color: #111111; border: 1px solid #2a2a2a; border-radius: 12px; overflow: hidden;">
+            
+            <!-- Header -->
+            <div style="background-color: #000000; padding: 28px 32px; text-align: center; border-bottom: 2px solid #d4af37;">
+                <h1 style="margin: 0; color: #d4af37; font-size: 26px; letter-spacing: 1px;">TORLET</h1>
+            </div>
+
+            <!-- Body -->
+            <div style="padding: 32px;">
+                <h2 style="color: #ffffff; font-size: 20px; margin-top: 0;">Welcome, ${name}! 🎉</h2>
+                <p style="color: #b3b3b3; font-size: 15px; line-height: 1.7;">
+                    Thanks for joining Torlet. Your account has been created successfully, and we're excited 
+                    to have you as part of our community.
+                </p>
+                <p style="color: #b3b3b3; font-size: 15px; line-height: 1.7;">
+                    You can now browse products, manage your orders, and enjoy a shopping experience built 
+                    just for you. If you ever have questions, our support team is only an email away.
+                </p>
+
+                <!-- CTA Button -->
+                <div style="text-align: center; margin: 32px 0;">
+                    <a href="https://torlet-project-client-side.vercel.app/" 
+                       style="background-color: #d4af37; color: #000000; text-decoration: none; 
+                              padding: 14px 32px; border-radius: 6px; font-weight: bold; 
+                              font-size: 15px; display: inline-block;">
+                        Start Exploring
+                    </a>
+                </div>
+
+                <p style="color: #666666; font-size: 13px; line-height: 1.6;">
+                    If you didn't sign up for this account, you can safely ignore this email.
+                </p>
+            </div>
+
+            <!-- Social Footer -->
+            <div style="background-color: #000000; padding: 24px 32px; text-align: center; border-top: 1px solid #2a2a2a;">
+                <p style="color: #888888; font-size: 13px; margin-bottom: 16px;">Follow us</p>
+                <div>
+                    <a href="https://www.instagram.com/torle.tcom?stkn=MTFzNTd6ZXpoaGpyNg%3D%3D&utm_source=qr" style="display: inline-block; margin: 0 8px; text-decoration: none;">
+                        <span style="display: inline-block; width: 36px; height: 36px; line-height: 36px; background-color: #1a1a1a; border-radius: 50%; color: #d4af37; font-size: 15px;">IG</span>
+                    </a>
+                    <a href="https://www.facebook.com/torlet.page?mibextid=wwXIfr&rdid=eOFlfvoCj7XQMTnZ&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F19FinNjZBp%2F%3Fmibextid%3DwwXIfr" style="display: inline-block; margin: 0 8px; text-decoration: none;">
+                        <span style="display: inline-block; width: 36px; height: 36px; line-height: 36px; background-color: #1a1a1a; border-radius: 50%; color: #d4af37; font-size: 15px;">FB</span>
+                    </a>
+                    <a href="https://x.com/mdmozhar?s=11" style="display: inline-block; margin: 0 8px; text-decoration: none;">
+                        <span style="display: inline-block; width: 36px; height: 36px; line-height: 36px; background-color: #1a1a1a; border-radius: 50%; color: #d4af37; font-size: 15px;">X</span>
+                    </a>
+                    <a href="https://linkedin.com" style="display: inline-block; margin: 0 8px; text-decoration: none;">
+                        <span style="display: inline-block; width: 36px; height: 36px; line-height: 36px; background-color: #1a1a1a; border-radius: 50%; color: #d4af37; font-size: 15px;">in</span>
+                    </a>
+                </div>
+                <p style="color: #555555; font-size: 12px; margin-top: 20px;">© ${new Date().getFullYear()} Torlet. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+    `
+    };
+    transforter.sendMail(mailOptions)
+})
 
 const client = new MongoClient(uri, {
     serverApi: {
