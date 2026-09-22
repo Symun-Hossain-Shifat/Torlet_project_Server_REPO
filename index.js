@@ -24,6 +24,7 @@ app.get("/", (req, res) => {
     res.send("Hello User In Torlet Server!");
 });
 
+// Email Send Transforter
 
 const transforter = nodemailer.createTransport({
     service: 'gmail',
@@ -36,12 +37,15 @@ const transforter = nodemailer.createTransport({
 // Send Welcome Mail After Completing Sign In
 app.post('/api/auth/signup', async (req, res) => {
     const { email, name } = req.query;
+    if (email === process.env.EMAIL_HOST) {
+        return res.send({ message: 'Admin Can Not Create Account' })
+    }
 
     const mailOptions = {
         from: `"Torlet" <${process.env.EMAIL_USER}>`,
         to: email,
         subject: 'Welcome to Torlet 🎉',
-        text: `Welcome to Torlet, ${name}! We are happy to have you with us. Start exploring at https://torlet.com`,
+        text: `Welcome to Torlet, ${name}! We are happy to have you with us. Start exploring at https://torlet-project-client-side.vercel.app/`,
         html: `
     <div style="background-color: #0a0a0a; padding: 40px 20px; font-family: Arial, sans-serif;">
         <div style="max-width: 520px; margin: 0 auto; background-color: #111111; border: 1px solid #2a2a2a; border-radius: 12px; overflow: hidden;">
