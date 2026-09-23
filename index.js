@@ -3,7 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 const nodemailer = require("nodemailer");
 
-const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId, CURSOR_FLAGS } = require("mongodb");
 const { createRemoteJWKSet, jwtVerify } = require("jose-cjs");
 
 const app = express();
@@ -108,6 +108,8 @@ app.post('/api/auth/signup', async (req, res) => {
     transforter.sendMail(mailOptions)
 })
 
+
+
 const client = new MongoClient(uri, {
     serverApi: {
         version: ServerApiVersion.v1,
@@ -123,6 +125,7 @@ const UsersCollection = DBName.collection("user");
 const WishListCollection = DBName.collection('WishListCollection')
 const ContactCollection = DBName.collection('ContactCollection')
 const OrderCollection = DBName.collection('OrderCollection')
+const OTPCollection = DBName.collection('OTPCollection')
 
 // Verify Token 
 const JWKS = createRemoteJWKSet(
@@ -294,8 +297,29 @@ app.get('/api/Order', VerifyToken, async (req, res) => {
     }
 });
 
+app.get("/api/auth/otp", async (req, res) => {
+    try {
+        const { email } = req.query;
+
+        console.log("GET EMAIL:", email);
+
+        const result = await OTPCollection.findOne({
+            email: email.trim().toLowerCase(),
+        });
 
 
+        return res.status(200).json(result);
+
+    } catch (error) {
+        console.error("GET OTP ERROR:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to get OTP",
+            error: error.message,
+        });
+    }
+});
 
 
 
@@ -441,6 +465,28 @@ app.patch('/api/Order/:id', VerifyToken, VerifyAdmin, async (req, res) => {
     res.status(200).send(result);
 })
 
+
+
+
+
+
+
+
+
+// Generate Otp For Verify Email 
+app.post('/api/auth/otp', async (req, res) => {
+    const Data = req.body;
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    const NewData = {
+        ...Data,
+        otp,
+        createdAt: new Date(),
+    }
+
+    const result = await OTPCollection.insertOne(NewData);
+    res.status(201).send(result);
+
+})
 
 
 
