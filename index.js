@@ -34,6 +34,10 @@ const transforter = nodemailer.createTransport({
     }
 })
 
+
+
+
+
 // Send Welcome Mail After Completing Sign In
 app.post('/api/auth/signup', async (req, res) => {
     const { email, name } = req.query;
@@ -42,7 +46,7 @@ app.post('/api/auth/signup', async (req, res) => {
     }
 
     const mailOptions = {
-        from: `"Torlet" <${process.env.EMAIL_USER}>`,
+        from: process.env.EMAIL_HOST,
         to: email,
         subject: 'Welcome to Torlet 🎉',
         text: `Welcome to Torlet, ${name}! We are happy to have you with us. Start exploring at https://torlet-project-client-side.vercel.app/`,
@@ -108,7 +112,70 @@ app.post('/api/auth/signup', async (req, res) => {
     transforter.sendMail(mailOptions)
 })
 
+app.post('/api/auth/email-Verify-otp', async (req, res) => {
+    const { email, otp } = req.query;
+    console.log(email, otp)
+    if (email === process.env.EMAIL_HOST) {
+        return res.send({ message: 'Admin Can Not Create Account' })
+    }
+    const mailOptions = {
+        from: process.env.EMAIL_HOST,
+        to: email,
+        subject: "Verify Your Email - Torlet 🔐",
 
+        text: `Hello ,
+
+Your Torlet verification code is: ${otp}
+
+This code is valid for 5 minutes.
+Please do not share this code with anyone.
+
+© ${new Date().getFullYear()} Torlet.`,
+
+        html: `
+        <div style="background:#0a0a0a;padding:40px 20px;font-family:Arial;color:white;text-align:center;">
+            <div style="max-width:450px;margin:auto;background:#111;padding:30px;border-radius:12px;border:1px solid #2a2a2a;">
+                
+                <h1 style="color:#d4af37;margin-bottom:20px;">TORLET</h1>
+
+                <h2>Verify Your Email 🔐</h2>
+
+                <p style="color:#aaa;">
+                    Hello , use the verification code below:
+                </p>
+
+                <div style="
+                    margin:25px 0;
+                    padding:18px;
+                    background:#000;
+                    border:1px solid #d4af37;
+                    border-radius:8px;
+                    color:#d4af37;
+                    font-size:32px;
+                    font-weight:bold;
+                    letter-spacing:8px;
+                ">
+                    ${otp}
+                </div>
+
+                <p style="color:#888;">
+                    This code is valid for <b style="color:#d4af37;">5 minutes</b>.
+                </p>
+
+                <p style="color:#666;font-size:12px;">
+                    Do not share this code with anyone.
+                </p>
+
+                <p style="color:#555;font-size:12px;">
+                    © ${new Date().getFullYear()} Torlet. All rights reserved.
+                </p>
+
+            </div>
+        </div>
+    `,
+    };
+    transforter.sendMail(mailOptions)
+})
 
 const client = new MongoClient(uri, {
     serverApi: {
@@ -125,7 +192,13 @@ const UsersCollection = DBName.collection("user");
 const WishListCollection = DBName.collection('WishListCollection')
 const ContactCollection = DBName.collection('ContactCollection')
 const OrderCollection = DBName.collection('OrderCollection')
-const OTPCollection = DBName.collection('OTPCollection')
+const OTPCollection = DBName.collection("OTPCollection");
+
+// OTP automatically delete after 5 minutes
+OTPCollection.createIndex(
+    { createdAt: 1 },
+    { expireAfterSeconds: 300 }
+);
 
 // Verify Token 
 const JWKS = createRemoteJWKSet(
