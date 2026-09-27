@@ -112,14 +112,14 @@ app.post('/api/auth/signup', async (req, res) => {
     transforter.sendMail(mailOptions)
 })
 
-app.post('/api/auth/email-Verify-otp', async (req, res) => {
+app.post('/api/auth/email-verify-otp', async (req, res) => {
     const { email, otp } = req.query;
-    console.log(email, otp)
+
     if (email === process.env.EMAIL_HOST) {
         return res.send({ message: 'Admin Can Not Create Account' })
     }
     const mailOptions = {
-        from: process.env.EMAIL_HOST,
+        from: `Torlet <${process.env.EMAIL_HOST}>`,
         to: email,
         subject: "Verify Your Email - Torlet 🔐",
 
@@ -174,7 +174,14 @@ Please do not share this code with anyone.
         </div>
     `,
     };
-    transforter.sendMail(mailOptions)
+    const info = await transforter.sendMail(mailOptions);
+
+
+
+    return res.status(200).send({
+        success: true,
+        message: "OTP email sent successfully",
+    });
 })
 
 const client = new MongoClient(uri, {
@@ -512,11 +519,26 @@ app.delete('/api/Product/:id', VerifyToken, VerifyAdmin, async (req, res) => {
 
 
 // Update APi  
+// Update block unblock by admin
 app.patch('/api/user/:email', VerifyToken, VerifyAdmin, async (req, res) => {
     const { email } = req.params;
     const { isBlocked } = req.body
 
     const result = await UsersCollection.updateOne({ email: email }, { $set: { isBlocked: isBlocked } });
+    if (result.modifiedCount === 0) {
+        return res.status(404).send({
+            message: "User not found",
+        });
+    }
+    res.status(200).send(result);
+})
+
+// update Emailverification By User
+app.patch('/api/user/emailVerification/:email', async (req, res) => {
+    const { email } = req.params;
+    const { emailVerified } = req.body
+
+    const result = await UsersCollection.updateOne({ email: email }, { $set: { emailVerified: emailVerified } });
     if (result.modifiedCount === 0) {
         return res.status(404).send({
             message: "User not found",
