@@ -11,9 +11,15 @@ const app = express();
 const uri = process.env.MONGODB_URL;
 const port = process.env.PORT;
 
+const allowedOrigins = [
+    "https://www.torlet.com",
+    "https://torlet.com",
+    "https://torlet-project-client-side.vercel.app",
+];
+
 app.use(
     cors({
-        origin: process.env.CLIENT_URL,
+        origin: allowedOrigins,
         credentials: true,
     })
 );
@@ -534,7 +540,7 @@ app.patch('/api/user/:email', VerifyToken, VerifyAdmin, async (req, res) => {
 })
 
 // update Emailverification By User
-app.patch('/api/user/emailVerification/:email', async (req, res) => {
+app.patch('/api/user/emailVerification/:email', VerifyToken, async (req, res) => {
     const { email } = req.params;
     const { emailVerified } = req.body
 
